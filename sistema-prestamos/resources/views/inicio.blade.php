@@ -250,9 +250,10 @@
     <i class="bi bi-people"></i>
 </a>
 
-        <a href="#" title="Tipos de préstamo">
-            <i class="bi bi-tags"></i>
-        </a>
+        <a href="{{ route('tipos-prestamo.index') }}"
+   title="Tipos de préstamo">
+    <i class="bi bi-tags"></i>
+</a>
 
         <a href="#" title="Apertura de préstamos">
             <i class="bi bi-cash-stack"></i>
