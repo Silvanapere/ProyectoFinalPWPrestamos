@@ -10,9 +10,11 @@
             <i class="bi bi-grid-1x2-fill"></i>
         </a>
 
-        <a href="{{ route('clientes.index') }}" class="{{ request()->routeIs('clientes.*') ? 'activo' : '' }}" @if (request()->routeIs('clientes.*')) aria-current="page" @endif title="Clientes y garantes">
+        @can('gestionar-clientes')
+        <a href="{{ route('clientes.index') }}" class="{{ request()->routeIs('clientes.*', 'garantes.*') ? 'activo' : '' }}" @if (request()->routeIs('clientes.*', 'garantes.*')) aria-current="page" @endif title="Clientes y garantes">
     <i class="bi bi-people"></i>
 </a>
+        @endcan
 
         <a href="{{ route('tipos-prestamo.index') }}" class="{{ request()->routeIs('tipos-prestamo.*') ? 'activo' : '' }}" @if (request()->routeIs('tipos-prestamo.*')) aria-current="page" @endif
    title="Tipos de préstamo">

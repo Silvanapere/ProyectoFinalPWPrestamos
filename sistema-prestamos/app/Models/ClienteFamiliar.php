@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClienteFamiliar extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes_familiares';
 
     protected $fillable = [
@@ -14,7 +16,7 @@ class ClienteFamiliar extends Model
         'nombre',
         'parentesco',
         'telefono',
-        'direccion'
+        'direccion',
     ];
 
     public function cliente()

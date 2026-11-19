@@ -6,19 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClienteTelefono extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes_telefonos';
 
     protected $fillable = [
         'cliente_id',
         'tipo',
         'numero',
-        'principal'
+        'principal',
     ];
 
     protected function casts(): array
     {
         return [
-            'principal' => 'boolean'
+            'principal' => 'boolean',
         ];
     }
 
@@ -30,4 +32,3 @@ class ClienteTelefono extends Model
         );
     }
 }
-

@@ -6,12 +6,14 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClienteReferencia extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes_referencias';
 
     protected $fillable = [
         'cliente_id',
         'nombre',
-        'telefono'
+        'telefono',
     ];
 
     public function cliente()

@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClienteLaboral extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes_laborales';
 
     protected $fillable = [
@@ -15,14 +17,14 @@ class ClienteLaboral extends Model
         'tiempo_laborando',
         'sueldo',
         'telefono_empresa',
-        'direccion_empresa'
+        'direccion_empresa',
     ];
 
     protected function casts(): array
     {
         return [
             'tiempo_laborando' => 'integer',
-            'sueldo' => 'decimal:2'
+            'sueldo' => 'decimal:2',
         ];
     }
 

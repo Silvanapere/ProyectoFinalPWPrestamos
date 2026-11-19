@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Modificar cliente | Gestión de Préstamos')
+@section('title', 'Modificar persona | Gestión de Préstamos')
 @section('page-class', 'pagina-clientes-edit')
 
 @push('styles')
@@ -9,6 +9,7 @@
 
 @section('content')
 @php
+        $modoGarante = $modoGarante ?? false;
         $telefonosFormulario = old('telefonos', $cliente->telefonos->map(function ($telefono) {
             return [
                 'tipo' => $telefono->tipo,
@@ -50,7 +51,7 @@
             <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
                 <div>
                     <small class="text-secondary">Mantenimientos / Clientes / Modificar</small>
-                    <h2 class="fw-bold mt-2">Modificar cliente</h2>
+                    <h2 class="fw-bold mt-2">Modificar {{ $modoGarante ? 'garante' : 'cliente' }}</h2>
                     <p class="text-secondary mb-0">Actualiza los datos del registro existente.</p>
                 </div>
                 <a href="{{ route('clientes.index') }}" class="btn btn-outline-secondary">Volver</a>
@@ -67,7 +68,11 @@
                 </div>
             @endif
 
-            <form action="{{ route('clientes.update', $cliente->id) }}" method="POST" id="formEditarCliente" enctype="multipart/form-data">
+            @if($modoGarante)
+                <div class="info mb-3">Los datos personales, teléfonos y empleo pertenecen a la misma persona. Si también es cliente, se actualizarán en ambos roles. Sus asignaciones como garante y sus datos crediticios se conservan.</div>
+            @endif
+
+            <form action="{{ route($modoGarante ? 'garantes.update' : 'clientes.update', $cliente->id) }}" method="POST" id="formEditarCliente" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -126,6 +131,7 @@
                             <input type="email" id="correo" name="correo" class="form-control" maxlength="150"
                                    value="{{ old('correo', $cliente->correo) }}" required>
                         </div>
+                        @unless($modoGarante)
                         <div class="col-md-6">
                             <label class="form-label" for="estado">Estado *</label>
                             <select id="estado" name="estado" class="form-select" required>
@@ -137,6 +143,7 @@
                                 @endforeach
                             </select>
                         </div>
+                        @endunless
                         <div class="col-md-6">
                             <label class="form-label" for="direccion">Dirección *</label>
                             <input id="direccion" name="direccion" class="form-control" maxlength="255"
@@ -232,6 +239,7 @@
                     </div>
                 </section>
 
+                @unless($modoGarante)
                 <section class="tarjeta">
                     <h5 class="titulo-seccion"><i class="bi bi-wallet2"></i>Datos crediticios</h5>
                     <div class="row g-3">
@@ -286,7 +294,10 @@
                                 Teléfono:
                                 {{ $garante->telefonos->firstWhere('principal', true)?->numero ?? $garante->telefonos->first()?->numero ?? 'Sin teléfono' }}
                             </div>
-                            <small>Los datos y la asignación del garante no se modifican desde esta pantalla.</small>
+                            @can('gestionar-clientes')
+                            <a class="btn btn-outline-secondary btn-sm mt-2" href="{{ route('garantes.edit', $garante->id) }}">Modificar garante</a>
+                            @endcan
+                            <small>La asignación del garante se conserva. Sus datos se editan desde su propio formulario.</small>
                         @else
                             Sin garante asignado.
                         @endif
@@ -326,6 +337,7 @@
                     @endforeach
                 </section>
 
+                @endunless
                 <div class="d-flex justify-content-end gap-3 mb-4">
                     <a href="{{ route('clientes.index') }}" class="btn btn-outline-secondary">Cancelar</a>
                     <button type="submit" class="btn btn-principal">
@@ -338,6 +350,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/clientes-telefonos.js') }}"></script>
 <script>
         const formulario = document.getElementById('formEditarCliente');
         const listaTelefonos = document.getElementById('lista-telefonos');

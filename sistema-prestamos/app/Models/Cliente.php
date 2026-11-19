@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class Cliente extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes';
 
     protected $fillable = [
@@ -22,14 +24,14 @@ class Cliente extends Model
         'limite_credito',
         'clasificacion_crediticia',
         'documento_archivo',
-        'estado'
+        'estado',
     ];
 
     protected function casts(): array
     {
         return [
             'fecha_nacimiento' => 'date',
-            'limite_credito' => 'decimal:2'
+            'limite_credito' => 'decimal:2',
         ];
     }
 

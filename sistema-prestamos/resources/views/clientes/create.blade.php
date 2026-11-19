@@ -256,6 +256,7 @@
 @endsection
 
 @push('scripts')
+<script src="{{ asset('js/clientes-telefonos.js') }}"></script>
 <script>
     const buscarUrl = @json(route('clientes.buscar-documento'));
     const form = document.getElementById('formCliente');
@@ -266,6 +267,13 @@
     let documentoGaranteComprobado = '';
     let tipoGaranteComprobado = '';
     let clienteYaRegistrado = false;
+    let consultaCliente = 0;
+    let consultaGarante = 0;
+    datosGarante.querySelectorAll('.garante-detalle').forEach(campo => { campo.disabled = true; });
+    function consultaVigente(prefijo, tipo, numero) {
+        return leerValor(prefijo ? 'garante[tipo_documento_id]' : 'tipo_documento_id') === tipo
+            && leerValor(prefijo ? 'garante[numero_documento]' : 'numero_documento').trim() === numero;
+    }
 
     function configurarDocumento(idTipo, idNumero) {
     const selector = document.getElementById(idTipo);
@@ -345,7 +353,7 @@ configurarDocumento('garante_tipo_documento_id', 'garante_numero_documento');
         datosGarante.hidden = false;
         datosGarante.querySelectorAll('.garante-detalle').forEach(campo => {
             campo.disabled = existe;
-            campo.required = !existe && campo.type !== 'hidden';
+            campo.required = !existe && !['hidden', 'file'].includes(campo.type);
         });
         document.getElementById('tituloDatosGarante').textContent = existe ? 'Garante existente (solo lectura)' : 'Registrar nuevo garante';
         if (existe && persona) {
@@ -364,20 +372,23 @@ configurarDocumento('garante_tipo_documento_id', 'garante_numero_documento');
                 'laboral][direccion_empresa': persona.datos_laborales?.direccion_empresa
             };
             Object.entries(campos).forEach(([clave, valor]) => asignarValor('garante[' + clave + ']', valor ?? ''));
-        } else if (!existe) {
+        } else if (!existe && datosGarante.dataset.nuevo !== leerValor('garante[tipo_documento_id]') + ':' + leerValor('garante[numero_documento]').trim()) {
             datosGarante.querySelectorAll('.garante-detalle').forEach(campo => {
                 if (campo.type !== 'hidden') campo.value = '';
             });
         }
+        datosGarante.dataset.nuevo = existe ? '' : leerValor('garante[tipo_documento_id]') + ':' + leerValor('garante[numero_documento]').trim();
     }
 
-    document.getElementById('buscarCliente').addEventListener('click', async () => {
+    async function buscarCliente() {
+        const consulta = ++consultaCliente;
         const tipo = leerValor('tipo_documento_id');
         const numero = leerValor('numero_documento').trim();
         if (!tipo || !numero) { mensajeCliente.textContent = 'Selecciona el tipo y escribe el documento.'; return; }
         mensajeCliente.textContent = 'Buscando...';
         try {
             const datos = await consultarDocumento(tipo, numero);
+            if (consulta !== consultaCliente || !consultaVigente(false, tipo, numero)) return;
             if (datos.encontrado) {
                 const persona = datos.persona;
                 clienteYaRegistrado = datos.ya_es_cliente;
@@ -404,10 +415,12 @@ configurarDocumento('garante_tipo_documento_id', 'garante_numero_documento');
                 clienteYaRegistrado = false;
                 mensajeCliente.textContent = 'Documento disponible. Completa los datos del cliente.';
             }
-        } catch (error) { mensajeCliente.textContent = error.message; }
-    });
+        } catch (error) { if (consulta === consultaCliente && consultaVigente(false, tipo, numero)) mensajeCliente.textContent = error.message; }
+    }
+    document.getElementById('buscarCliente').addEventListener('click', buscarCliente);
 
     async function buscarGarante() {
+        const consulta = ++consultaGarante;
         const tipo = leerValor('garante[tipo_documento_id]');
         const numero = leerValor('garante[numero_documento]').trim();
         const numeroCliente = leerValor('numero_documento').trim();
@@ -421,6 +434,7 @@ configurarDocumento('garante_tipo_documento_id', 'garante_numero_documento');
         mensajeGarante.textContent = 'Buscando garante...';
         try {
             const datos = await consultarDocumento(tipo, numero);
+            if (consulta !== consultaGarante || !consultaVigente(true, tipo, numero)) return;
             if (datos.encontrado) {
                 mostrarGarante(true, datos.persona);
                 mensajeGarante.textContent = 'Garante encontrado. Sus datos se muestran en solo lectura.';
@@ -431,7 +445,7 @@ configurarDocumento('garante_tipo_documento_id', 'garante_numero_documento');
             garanteComprobado = true;
             documentoGaranteComprobado = numero;
             tipoGaranteComprobado = tipo;
-        } catch (error) { mensajeGarante.textContent = error.message; datosGarante.hidden = true; }
+        } catch (error) { if (consulta === consultaGarante && consultaVigente(true, tipo, numero)) { mensajeGarante.textContent = error.message; datosGarante.hidden = true; } }
     }
     document.getElementById('buscarGarante').addEventListener('click', buscarGarante);
     document.getElementById('garante_numero_documento').addEventListener('input', () => { garanteComprobado = false; datosGarante.hidden = true; });
@@ -445,11 +459,37 @@ document.getElementById('numero_documento').addEventListener('input', function()
         .value.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 
     if (documentoCliente && documentoCliente === documentoGarante) {
+        ++consultaGarante;
         garanteComprobado = false;
         datosGarante.hidden = true;
         mensajeGarante.textContent = 'El cliente no puede ser su propio garante.';
     }
 });    document.getElementById('tipo_documento_id').addEventListener('change', () => { clienteYaRegistrado = false; mensajeCliente.textContent = ''; });
+
+    function programarBusqueda(idTipo, idNumero, buscar, esGarante) {
+        let temporizador;
+        function programar() {
+            clearTimeout(temporizador);
+            if (esGarante) {
+                ++consultaGarante;
+                garanteComprobado = false;
+                datosGarante.querySelectorAll('.garante-detalle').forEach(campo => { campo.disabled = true; });
+            } else {
+                ++consultaCliente;
+                clienteYaRegistrado = false;
+            }
+            const selector = document.getElementById(idTipo);
+            const numero = document.getElementById(idNumero).value.trim().toUpperCase();
+            const nombre = selector.selectedOptions[0]?.textContent.trim();
+            const patrones = { 'Cédula': /^\d{3}-\d{7}-\d$/, 'RNC': /^\d{9}$/, 'Pasaporte': /^[A-Z0-9]{6,20}$/ };
+            if (patrones[nombre]?.test(numero)) temporizador = setTimeout(buscar, 500);
+        }
+        document.getElementById(idTipo).addEventListener('change', programar);
+        document.getElementById(idNumero).addEventListener('input', programar);
+        document.getElementById(esGarante ? 'buscarGarante' : 'buscarCliente').addEventListener('click', () => clearTimeout(temporizador));
+    }
+    programarBusqueda('tipo_documento_id', 'numero_documento', buscarCliente, false);
+    programarBusqueda('garante_tipo_documento_id', 'garante_numero_documento', buscarGarante, true);
 
     let siguienteTelefono = Math.max(0, ...Array.from(document.querySelectorAll('#telefonosCliente .telefono-item')).map(fila => {
         const nombre = fila.querySelector('input[name$="[numero]"]')?.name || '';

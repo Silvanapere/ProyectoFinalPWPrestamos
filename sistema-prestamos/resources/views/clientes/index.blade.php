@@ -201,6 +201,7 @@
             </td>
         </tr>
     @endforelse
+    <tr id="sin-resultados-clientes" hidden><td colspan="6" class="text-center text-secondary py-4" role="status">No se encontraron clientes con la búsqueda y el estado seleccionados.</td></tr>
 </tbody>
 
 
@@ -388,6 +389,9 @@
                         $garante = $cliente->relacionGarante->garante;
                     @endphp
 
+                    @can('gestionar-clientes')
+                    <a class="btn btn-outline-secondary btn-sm mb-3" href="{{ route('garantes.edit', $garante->id) }}">Modificar garante</a>
+                    @endcan
                     <p><strong>Nombre:</strong>
                         {{ $garante->nombres }} {{ $garante->apellidos }}
                     </p>
@@ -482,7 +486,7 @@
 
 <!-- Modal para seleccionar cliente -->
 <div class="modal fade" id="modalSeleccionarCliente" tabindex="-1">
-    <div class="modal-dialog modal-dialog-centered modal-lg">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
         <div class="modal-content border-0 rounded-4">
 
             <div class="modal-header border-0 px-4 pt-4">
@@ -510,8 +514,8 @@
                 <div id="lista-clientes-modal" class="list-group">
 
                     @forelse ($clientes as $cliente)
-    <a href="{{ route('clientes.edit', $cliente->id) }}"
-       class="list-group-item list-group-item-action py-3">
+    <button type="button" data-url="{{ route('clientes.edit', $cliente->id) }}"
+       class="list-group-item list-group-item-action py-3" aria-pressed="false">
 
         <div class="fw-semibold">
             {{ $cliente->nombres }} {{ $cliente->apellidos }}
@@ -520,7 +524,7 @@
         <small class="text-secondary">
             {{ $cliente->numero_documento }}
         </small>
-    </a>
+    </button>
 @empty
     <p class="text-secondary text-center py-3">
         No hay clientes registrados.
@@ -528,7 +532,11 @@
 @endforelse
 
                 </div>
-
+                <p id="sin-resultados-modal" class="text-secondary text-center py-3" role="status" hidden>No se encontraron clientes.</p>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="button" id="seleccionar-cliente" class="btn btn-principal" disabled>Seleccionar</button>
+                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancelar</button>
             </div>
         </div>
     </div>
@@ -540,31 +548,18 @@
 @endsection
 
 @push('scripts')
-<script>
-    const buscador = document.getElementById('buscar-cliente');
 
-    buscador.addEventListener('input', function() {
-        const texto = this.value.toLowerCase().trim();
-
-        document.querySelectorAll('#tabla-clientes tr').forEach(function(fila) {
-            const contenido = fila.textContent.toLowerCase();
-
-            fila.style.display = contenido.includes(texto)
-                ? ''
-                : 'none';
-        });
-    });
-</script>
 <script>
     (function () {
         const buscador = document.getElementById('buscar-cliente');
         const filtroEstado = document.getElementById('filtro-estado');
-        const filas = document.querySelectorAll('#tabla-clientes tr');
+        const filas = document.querySelectorAll('#tabla-clientes tr[data-estado]');
 
         function filtrarClientes() {
             const texto = buscador.value.toLowerCase().trim();
             const estadoSeleccionado = filtroEstado.value;
 
+            let visibles = 0;
             filas.forEach(function (fila) {
                 const columnas = fila.querySelectorAll('td');
 
@@ -581,14 +576,61 @@
                     estadoSeleccionado === 'Todos' ||
                     estadoCliente === estadoSeleccionado;
 
-                fila.style.display =
-                    coincideBusqueda && coincideEstado ? '' : 'none';
+                const visible = coincideBusqueda && coincideEstado;
+                fila.style.display = visible ? '' : 'none';
+                if (visible) visibles++;
             });
+            document.getElementById('sin-resultados-clientes').hidden = visibles > 0 || filas.length === 0;
         }
 
         buscador.addEventListener('input', filtrarClientes);
         filtroEstado.addEventListener('change', filtrarClientes);
     })();
 </script>
+
+<script>
+    (function () {
+        const buscadorModal = document.getElementById('buscar-cliente-modal');
+        const listaClientes = document.getElementById('lista-clientes-modal');
+
+        if (!buscadorModal || !listaClientes) {
+            return;
+        }
+
+        const clientes = listaClientes.querySelectorAll('button.list-group-item');
+        const seleccionar = document.getElementById('seleccionar-cliente');
+        let elegido = null;
+        function elegir(cliente) {
+            clientes.forEach(item => {
+                item.classList.toggle('active', item === cliente);
+                item.setAttribute('aria-pressed', item === cliente ? 'true' : 'false');
+            });
+            elegido = cliente;
+            seleccionar.disabled = !cliente;
+        }
+        clientes.forEach(cliente => {
+            cliente.addEventListener('click', () => elegir(cliente));
+            cliente.addEventListener('dblclick', () => { window.location.href = cliente.dataset.url; });
+        });
+        seleccionar.addEventListener('click', () => { if (elegido) window.location.href = elegido.dataset.url; });
+        document.getElementById('modalSeleccionarCliente').addEventListener('hidden.bs.modal', () => elegir(null));
+
+        buscadorModal.addEventListener('input', function () {
+            const texto = this.value.toLowerCase().trim();
+
+            let visibles = 0;
+            clientes.forEach(function (cliente) {
+                const contenido = cliente.textContent.toLowerCase();
+
+                const visible = contenido.includes(texto);
+                cliente.style.display = visible ? '' : 'none';
+                if (visible) visibles++;
+                if (!visible && elegido === cliente) elegir(null);
+            });
+            document.getElementById('sin-resultados-modal').hidden = visibles > 0 || clientes.length === 0;
+        });
+    })();
+</script>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 @endpush

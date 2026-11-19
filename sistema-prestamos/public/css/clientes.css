@@ -30,6 +30,12 @@
     background-color: #ede7dd; border-radius: 20px; padding: 6px 12px; font-size: 12px;
 }
 
+:where(.pagina-clientes-index) #lista-clientes-modal .active {
+    background-color: #e9ddcd;
+    border-color: #bda68d;
+    color: #292724;
+}
+
 @media (max-width: 650px) {
     :where(.pagina-clientes-index, .pagina-clientes-create, .pagina-clientes-edit) .menu {
         width: 65px;

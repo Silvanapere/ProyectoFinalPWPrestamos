@@ -6,18 +6,20 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClienteGarante extends Model
 {
+    use AuditaUsuario;
+
     protected $table = 'clientes_garantes';
 
     protected $fillable = [
         'cliente_id',
         'garante_id',
-        'fecha_asignacion'
+        'fecha_asignacion',
     ];
 
     protected function casts(): array
     {
         return [
-            'fecha_asignacion' => 'date'
+            'fecha_asignacion' => 'date',
         ];
     }
 
