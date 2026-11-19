@@ -1,0 +1,48 @@
+/* Estilos globales y componentes compartidos. */
+
+body {
+    background-color: #f8f6f2;
+        color: #292724;
+        font-family: Arial, sans-serif;
+}
+
+.menu {
+    width: 85px;
+        min-height: 100vh;
+        background-color: #292724;
+        padding: 25px 10px;
+        border-radius: 0 25px 25px 0;
+}
+
+.menu a {
+    color: #c9c3bd;
+        display: block;
+        text-align: center;
+        padding: 12px;
+        margin-bottom: 15px;
+        border-radius: 14px;
+        font-size: 22px;
+}
+
+.menu a:hover, .menu a.activo {
+    background-color: #bda68d;
+        color: #292724;
+}
+
+.contenido {
+    flex: 1;
+        min-width: 0;
+        padding: 35px;
+}
+
+:where(.pagina-clientes-create) .menu {
+    flex-shrink: 0;
+}
+
+:where(.pagina-clientes-edit) .menu {
+    flex-shrink: 0;
+}
+
+:where(.pagina-tipos-prestamo-index) .menu {
+    flex-shrink: 0;
+}

@@ -1,0 +1,85 @@
+:where(.pagina-clientes-index) .tarjeta {
+    background: white; border-radius: 20px; padding: 25px; border: none;
+}
+
+:where(.pagina-clientes-index) .resumen {
+    background-color: #e9ddcd;
+}
+
+:where(.pagina-clientes-index) .btn-principal {
+    background-color: #292724; color: white; border-radius: 12px; padding: 11px 20px;
+}
+
+:where(.pagina-clientes-index) .btn-principal:hover {
+    background-color: #594c40; color: white;
+}
+
+:where(.pagina-clientes-index) .form-control {
+    border-radius: 12px; padding: 11px;
+}
+
+:where(.pagina-clientes-index) .table th {
+    color: #8e8a84; font-size: 12px; font-weight: 500;
+}
+
+:where(.pagina-clientes-index) .table td {
+    padding-top: 18px; padding-bottom: 18px;
+}
+
+:where(.pagina-clientes-index) .estado {
+    background-color: #ede7dd; border-radius: 20px; padding: 6px 12px; font-size: 12px;
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-clientes-index, .pagina-clientes-create, .pagina-clientes-edit) .menu {
+        width: 65px;
+    }
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-clientes-index, .pagina-clientes-create, .pagina-clientes-edit) .contenido {
+        padding: 18px;
+    }
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .tarjeta {
+    background: white; border-radius: 20px; padding: 28px; margin-bottom: 22px;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .titulo-seccion {
+    font-size: 17px; font-weight: bold; margin-bottom: 22px;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .titulo-seccion i {
+    color: #9a8067; margin-right: 10px;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .form-label {
+    font-size: 13px; color: #68615a;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .form-control, :where(.pagina-clientes-create, .pagina-clientes-edit) .form-select {
+    border-radius: 10px; padding: 10px 12px;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .btn-principal {
+    background: #292724; color: white; border-radius: 12px; padding: 11px 24px;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .btn-principal:hover {
+    background: #594c40; color: white;
+}
+
+:where(.pagina-clientes-create, .pagina-clientes-edit) .info {
+    background: #f8f6f2; border-radius: 12px; padding: 14px; color: #68615a;
+}
+
+:where(.pagina-clientes-create) .subtitulo {
+    font-size: 14px; font-weight: bold; color: #594c40; margin-top: 18px;
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-clientes-create, .pagina-clientes-edit) .tarjeta {
+        padding: 20px;
+    }
+}

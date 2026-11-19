@@ -1,39 +1,15 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Registrar cliente | Gestión de Préstamos</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
-    <style>
-        body { background: #f8f6f2; color: #292724; font-family: Arial, sans-serif; }
-        .menu { width: 85px; min-height: 100vh; background: #292724; padding: 25px 10px; border-radius: 0 25px 25px 0; flex-shrink: 0; }
-        .menu a { display: block; text-align: center; color: #c9c3bd; font-size: 22px; padding: 12px; margin-bottom: 15px; border-radius: 14px; }
-        .menu a:hover, .menu a.activo { background: #bda68d; color: #292724; }
-        .contenido { flex: 1; min-width: 0; padding: 35px; }
-        .tarjeta { background: white; border-radius: 20px; padding: 28px; margin-bottom: 22px; }
-        .titulo-seccion { font-size: 17px; font-weight: bold; margin-bottom: 22px; }
-        .titulo-seccion i { color: #9a8067; margin-right: 10px; }
-        .form-label { font-size: 13px; color: #68615a; }
-        .form-control, .form-select { border-radius: 10px; padding: 10px 12px; }
-        .btn-principal { background: #292724; color: white; border-radius: 12px; padding: 11px 24px; }
-        .btn-principal:hover { background: #594c40; color: white; }
-        .info { background: #f8f6f2; border-radius: 12px; padding: 14px; color: #68615a; }
-        .subtitulo { font-size: 14px; font-weight: bold; color: #594c40; margin-top: 18px; }
-        @media (max-width: 650px) { .menu { width: 65px; } .contenido { padding: 18px; } .tarjeta { padding: 20px; } }
-    </style>
-</head>
-<body>
+@extends('layouts.app')
+
+@section('title', 'Registrar cliente | Gestión de Préstamos')
+@section('page-class', 'pagina-clientes-create')
+
+@push('styles')
+<link href="{{ asset('css/clientes.css') }}" rel="stylesheet">
+@endpush
+
+@section('content')
 <div class="d-flex">
-    <aside class="menu">
-        <a href="/" title="Inicio"><i class="bi bi-grid-1x2-fill"></i></a>
-        <a href="{{ route('clientes.index') }}" class="activo" title="Clientes"><i class="bi bi-people"></i></a>
-        <a href="{{ route('tipos-prestamo.index') }}" title="Tipos de préstamo"><i class="bi bi-tags"></i></a>
-        <a href="#" title="Préstamos"><i class="bi bi-cash-stack"></i></a>
-        <a href="#" title="Recibos"><i class="bi bi-receipt"></i></a>
-        <a href="#" title="Renovaciones"><i class="bi bi-arrow-repeat"></i></a>
-    </aside>
+    @include('partials.menu')
     <main class="contenido">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
             <div>
@@ -277,6 +253,9 @@
         </form>
     </main>
 </div>
+@endsection
+
+@push('scripts')
 <script>
     const buscarUrl = @json(route('clientes.buscar-documento'));
     const form = document.getElementById('formCliente');
@@ -559,5 +538,4 @@ document.getElementById('numero_documento').addEventListener('input', function()
         @endforeach
     @endif
 </script>
-</body>
-</html>
+@endpush

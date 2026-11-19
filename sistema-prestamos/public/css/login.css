@@ -1,0 +1,280 @@
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Arial, sans-serif;
+    background: #f8f6f2;
+    color: #292724;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 30px;
+}
+
+.login-contenedor {
+    width: 100%;
+    max-width: 1200px;
+    min-height: 650px;
+    background: white;
+    border: 2px solid #bda68d;
+    border-radius: 30px;
+    display: grid;
+    grid-template-columns: 42% 58%;
+    overflow: hidden;
+    box-shadow: 0 20px 65px rgba(41, 39, 36, 0.06);
+}
+
+.panel-formulario {
+    padding: 45px 65px;
+    display: flex;
+    flex-direction: column;
+}
+
+.marca {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 14px;
+    font-weight: bold;
+}
+
+.marca-icono {
+    width: 42px;
+    height: 42px;
+    border-radius: 13px;
+    background: #bda68d;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 23px;
+}
+
+.formulario {
+    margin: auto 0;
+    padding: 50px 0;
+}
+
+h1 {
+    font-size: 38px;
+    letter-spacing: -1.5px;
+    margin: 0 0 12px;
+}
+
+.descripcion {
+    color: #918b84;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 35px;
+}
+
+label {
+    display: block;
+    margin-bottom: 10px;
+    font-size: 13px;
+    font-weight: bold;
+}
+
+.campo {
+    margin-bottom: 24px;
+}
+
+input {
+    width: 100%;
+    padding: 15px;
+    border-radius: 12px;
+    border: 1px solid #e8e2db;
+    background: #f8f6f2;
+    color: #292724;
+    font-size: 14px;
+    outline: none;
+}
+
+input:focus {
+    border-color: #bda68d;
+}
+
+.contrasena {
+    position: relative;
+}
+
+.contrasena input {
+    padding-right: 65px;
+}
+
+.ver-contrasena {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: none;
+    background: transparent;
+    color: #756b61;
+    cursor: pointer;
+    font-size: 12px;
+}
+
+.boton-login {
+    width: 100%;
+    border: none;
+    border-radius: 12px;
+    padding: 16px;
+    background: #292724;
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.boton-login:hover {
+    background: #49423b;
+}
+
+.error {
+    color: #a33a3a;
+    font-size: 12px;
+    margin-top: 8px;
+}
+
+.pie {
+    color: #918b84;
+    font-size: 12px;
+}
+
+.panel-visual {
+    background: #e9ddcd;
+    padding: 45px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.panel-visual::before {
+    content: "";
+    width: 450px;
+    height: 450px;
+    border-radius: 50%;
+    background: #f3ebe0;
+    position: absolute;
+    right: -130px;
+    top: -150px;
+}
+
+.ilustracion {
+    position: relative;
+    width: 100%;
+    max-width: 440px;
+}
+
+.ventana {
+    background: #fff;
+    border-radius: 22px;
+    padding: 28px;
+    box-shadow: 0 25px 50px rgba(73, 66, 59, 0.12);
+}
+
+.ventana-titulo {
+    font-size: 17px;
+    font-weight: bold;
+    margin-bottom: 10px;
+}
+
+.ventana-texto {
+    font-size: 12px;
+    color: #918b84;
+}
+
+.estadisticas {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    margin-top: 25px;
+}
+
+.estadistica {
+    background: #f8f6f2;
+    padding: 20px;
+    border-radius: 15px;
+}
+
+.estadistica span {
+    font-size: 12px;
+    color: #756b61;
+}
+
+.estadistica strong {
+    display: block;
+    margin-top: 12px;
+    font-size: 26px;
+}
+
+.grafico {
+    height: 140px;
+    display: flex;
+    align-items: flex-end;
+    gap: 15px;
+    margin-top: 25px;
+    border-bottom: 1px solid #e8e2db;
+}
+
+.barra {
+    flex: 1;
+    background: #bda68d;
+    border-radius: 7px 7px 0 0;
+}
+
+.barra:nth-child(1) { height: 35%; }
+.barra:nth-child(2) { height: 62%; }
+.barra:nth-child(3) { height: 48%; }
+.barra:nth-child(4) { height: 83%; background: #49423b; }
+.barra:nth-child(5) { height: 67%; }
+.barra:nth-child(6) { height: 95%; }
+
+.mensaje-visual {
+    text-align: center;
+    margin-top: 35px;
+}
+
+.mensaje-visual h2 {
+    font-size: 24px;
+    margin-bottom: 10px;
+}
+
+.mensaje-visual p {
+    color: #756b61;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+@media (max-width: 850px) {
+    .login-contenedor {
+        grid-template-columns: 1fr;
+    }
+
+    .panel-formulario {
+        min-height: 600px;
+    }
+
+    .panel-visual {
+        display: none;
+    }
+}
+
+@media (max-width: 500px) {
+    body {
+        padding: 12px;
+    }
+
+    .panel-formulario {
+        padding: 30px;
+    }
+
+    h1 {
+        font-size: 32px;
+    }
+}

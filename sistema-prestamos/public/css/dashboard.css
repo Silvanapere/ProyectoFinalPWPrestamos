@@ -1,0 +1,205 @@
+body:where(.pagina-inicio) {
+    margin: 0;
+}
+
+:where(.pagina-inicio) .sistema {
+    display: flex;
+        min-height: 100vh;
+}
+
+:where(.pagina-inicio) .menu {
+    display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 18px;
+        min-height: auto;
+}
+
+:where(.pagina-inicio) .logo {
+    width: 48px;
+        height: 48px;
+        background-color: #bda68d;
+        color: #292724;
+        border-radius: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 25px;
+        margin-bottom: 25px;
+}
+
+:where(.pagina-inicio) .menu a {
+    text-decoration: none;
+        width: 48px;
+        height: 48px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0;
+        margin-bottom: 0;
+        text-align: start;
+}
+
+:where(.pagina-inicio) .contenido {
+    padding: 30px;
+}
+
+:where(.pagina-inicio) .encabezado {
+    display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 28px;
+}
+
+:where(.pagina-inicio) .subtitulo {
+    color: #918b84;
+        font-size: 13px;
+}
+
+:where(.pagina-inicio) .busqueda {
+    background: white;
+        border: 0;
+        border-radius: 15px;
+        padding: 12px 18px;
+        width: 230px;
+}
+
+:where(.pagina-inicio) .distribucion {
+    display: grid;
+        grid-template-columns: 1fr 300px;
+        gap: 25px;
+}
+
+:where(.pagina-inicio) .tarjeta {
+    background-color: white;
+        border-radius: 23px;
+        padding: 25px;
+        box-shadow: 0 6px 25px rgba(0, 0, 0, 0.025);
+}
+
+:where(.pagina-inicio) .resumen {
+    background-color: #e9ddcd;
+        min-height: 280px;
+}
+
+:where(.pagina-inicio) .etiqueta {
+    color: #756b61;
+        font-size: 13px;
+}
+
+:where(.pagina-inicio) .grafico {
+    display: flex;
+        align-items: end;
+        gap: 12px;
+        height: 135px;
+        margin-top: 35px;
+        border-bottom: 1px solid #bda68d;
+}
+
+:where(.pagina-inicio) .barra {
+    flex: 1;
+        background-color: #bda68d;
+        border-radius: 8px 8px 0 0;
+}
+
+:where(.pagina-inicio) .barra.destacada {
+    background-color: #49423b;
+}
+
+:where(.pagina-inicio) .estadisticas {
+    display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+        margin-top: 22px;
+}
+
+:where(.pagina-inicio) .icono-tarjeta {
+    width: 45px;
+        height: 45px;
+        background-color: #f0e9e1;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 22px;
+        margin-bottom: 20px;
+}
+
+:where(.pagina-inicio) .numero {
+    font-size: 25px;
+        font-weight: bold;
+}
+
+:where(.pagina-inicio) .accesos {
+    display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 18px;
+}
+
+:where(.pagina-inicio) .acceso {
+    text-align: center;
+        padding: 25px 15px;
+}
+
+:where(.pagina-inicio) .acceso i {
+    font-size: 27px;
+        color: #9a8067;
+}
+
+:where(.pagina-inicio) .prestamo {
+    display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 16px 0;
+        border-bottom: 1px solid #eeeae5;
+}
+
+:where(.pagina-inicio) .avatar {
+    width: 43px;
+        height: 43px;
+        border-radius: 50%;
+        background-color: #e9ddcd;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: bold;
+        color: #6b5744;
+        flex-shrink: 0;
+}
+
+:where(.pagina-inicio) .estado {
+    font-size: 11px;
+        background-color: #f0e9e1;
+        padding: 5px 9px;
+        border-radius: 20px;
+}
+
+@media (max-width: 1100px) {
+    :where(.pagina-inicio) .distribucion {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-inicio) .menu {
+        width: 65px;
+    }
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-inicio) .contenido {
+        padding: 18px;
+    }
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-inicio) .estadisticas, :where(.pagina-inicio) .accesos {
+        grid-template-columns: 1fr;
+    }
+}
+
+@media (max-width: 650px) {
+    :where(.pagina-inicio) .busqueda {
+        display: none;
+    }
+}

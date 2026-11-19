@@ -1,147 +1,17 @@
+@extends('layouts.app')
 
-<!DOCTYPE html>
-<html lang="es">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
+@section('title', 'Clientes | Gestión de Préstamos')
+@section('page-class', 'pagina-clientes-index')
 
-    <title>Clientes | Gestión de Préstamos</title>
+@push('styles')
+<link href="{{ asset('css/clientes.css') }}" rel="stylesheet">
+@endpush
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
-          rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"
-          rel="stylesheet">
-
-    <style>
-        body {
-            background-color: #f8f6f2;
-            color: #292724;
-            font-family: Arial, sans-serif;
-        }
-
-        .menu {
-            width: 85px;
-            min-height: 100vh;
-            background-color: #292724;
-            padding: 25px 10px;
-            border-radius: 0 25px 25px 0;
-        }
-
-        .menu a {
-            color: #c9c3bd;
-            display: block;
-            text-align: center;
-            padding: 12px;
-            margin-bottom: 15px;
-            border-radius: 14px;
-            font-size: 22px;
-        }
-
-        .menu a:hover,
-        .menu a.activo {
-            background-color: #bda68d;
-            color: #292724;
-        }
-
-        .contenido {
-            flex: 1;
-            min-width: 0;
-            padding: 35px;
-        }
-
-        .tarjeta {
-            background: white;
-            border-radius: 20px;
-            padding: 25px;
-            border: none;
-        }
-
-        .resumen {
-            background-color: #e9ddcd;
-        }
-
-        .btn-principal {
-            background-color: #292724;
-            color: white;
-            border-radius: 12px;
-            padding: 11px 20px;
-        }
-
-        .btn-principal:hover {
-            background-color: #594c40;
-            color: white;
-        }
-
-        .form-control {
-            border-radius: 12px;
-            padding: 11px;
-        }
-
-        .table th {
-            color: #8e8a84;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .table td {
-            padding-top: 18px;
-            padding-bottom: 18px;
-        }
-
-        .estado {
-            background-color: #ede7dd;
-            border-radius: 20px;
-            padding: 6px 12px;
-            font-size: 12px;
-        }
-
-        @media (max-width: 650px) {
-            .menu {
-                width: 65px;
-            }
-
-            .contenido {
-                padding: 18px;
-            }
-        }
-    </style>
-</head>
-
-<body>
-
+@section('content')
 <div class="d-flex">
 
     <!-- MENÚ LATERAL -->
-    <aside class="menu">
-
-        <a href="/" title="Inicio">
-            <i class="bi bi-grid-1x2-fill"></i>
-        </a>
-
-        <a href="#" class="activo" title="Clientes">
-            <i class="bi bi-people"></i>
-        </a>
-
-        <a href="{{ route('tipos-prestamo.index') }}"
-   title="Tipos de préstamo">
-    <i class="bi bi-tags"></i>
-</a>
-
-        <a href="#" title="Préstamos">
-            <i class="bi bi-cash-stack"></i>
-        </a>
-
-        <a href="#" title="Recibos">
-            <i class="bi bi-receipt"></i>
-        </a>
-
-        <a href="#" title="Renovaciones">
-            <i class="bi bi-arrow-repeat"></i>
-        </a>
-
-    </aside>
+    @include('partials.menu')
 
     <!-- CONTENIDO -->
     <main class="contenido">
@@ -667,6 +537,9 @@
     </main>
 
 </div>
+@endsection
+
+@push('scripts')
 <script>
     const buscador = document.getElementById('buscar-cliente');
 
@@ -718,5 +591,4 @@
     })();
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+@endpush
