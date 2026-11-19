@@ -5,7 +5,11 @@ namespace Tests\Feature;
 use App\Models\Cliente;
 use App\Models\Nacionalidad;
 use App\Models\TipoDocumento;
+use App\Models\User;
+use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
 
 class ClienteTest extends TestCase
@@ -18,7 +22,7 @@ class ClienteTest extends TestCase
     {
         parent::setUp();
 
-        // Protección: jamás ejecutar estas pruebas sobre GestionPrestamos.
+        // Nunca ejecutar estas pruebas sobre la base de producción.
         $nombreConfigurado = config('database.connections.sqlsrv.database');
         $conexionPredeterminada = config('database.default');
 
@@ -28,6 +32,10 @@ class ClienteTest extends TestCase
                 'DB_DATABASE=GestionPrestamos_Test en .env.testing. ' .
                 'Conexión actual: ' . $conexionPredeterminada . '; base: ' . ($nombreConfigurado ?? '(sin definir)')
             );
+        }
+
+        if (DB::connection()->getDatabaseName() !== 'GestionPrestamos_Test') {
+            $this->fail('PRUEBAS BLOQUEADAS: la conexión real no apunta a GestionPrestamos_Test.');
         }
 
         DB::beginTransaction();
@@ -41,6 +49,14 @@ class ClienteTest extends TestCase
 
         $this->tipoCedulaId = $tipo->id;
         $this->nacionalidadId = $nacionalidad->id;
+
+        // Las rutas de clientes ahora requieren iniciar sesión.
+        $usuario = User::create([
+            'name' => 'Administrador de pruebas',
+            'email' => 'admin@prestamos.local',
+            'password' => Hash::make('ClaveDePruebaSoloParaTests'),
+        ]);
+        $this->actingAs($usuario);
     }
 
     protected function tearDown(): void
@@ -101,6 +117,13 @@ class ClienteTest extends TestCase
         $respuesta->assertRedirect(route('clientes.index'));
 
         return Cliente::where('numero_documento', '001-0000000-1')->firstOrFail();
+    }
+
+    private function contenidoJpegFicticio(): string
+    {
+        return base64_decode(
+            '/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAgGBgcGBQgHBwcJCQgKDBQNDAsLDBkSEw8UHRofHh0aHBwgJC4nICIsIxwcKDcpLDAxNDQ0Hyc5PTgyPC4zNDL/2wBDAQkJCQwLDBgNDRgyIRwhMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjIyMjL/wAARCAACAAIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwDqqKKK4TsP/9k='
+        );
     }
 
     public function test_registro_crea_cliente_y_garante_con_relaciones(): void
@@ -225,4 +248,86 @@ class ClienteTest extends TestCase
         $this->assertSame('Activo', $cliente->fresh()->estado);
         $this->assertSame(2, Cliente::count());
     }
+
+    public function test_registro_guarda_misma_imagen_ficticia_para_cliente_y_garante(): void
+    {
+        Storage::fake('local');
+
+        // JPEG ficticio pequeño: el mismo contenido para ambas personas.
+        $contenido = $this->contenidoJpegFicticio();
+
+        $datos = $this->solicitudValida();
+        $datos['documento_archivo'] = UploadedFile::fake()->createWithContent('cedula.jpg', $contenido);
+        $datos['documento_garante'] = UploadedFile::fake()->createWithContent('cedula.jpg', $contenido);
+
+        $this->post(route('clientes.store'), $datos)
+            ->assertRedirect(route('clientes.index'));
+
+        $cliente = Cliente::where('numero_documento', '001-0000000-1')->firstOrFail();
+        $garante = $cliente->relacionGarante->garante;
+
+        $this->assertSame(2, Cliente::count());
+        $this->assertNotNull($cliente->documento_archivo);
+        $this->assertNotNull($garante->documento_archivo);
+        $this->assertNotSame($cliente->documento_archivo, $garante->documento_archivo);
+        Storage::disk('local')->assertExists($cliente->documento_archivo);
+        Storage::disk('local')->assertExists($garante->documento_archivo);
+        $this->assertSame($contenido, Storage::disk('local')->get($cliente->documento_archivo));
+        $this->assertSame($contenido, Storage::disk('local')->get($garante->documento_archivo));
+
+        $this->get(route('clientes.documento', $cliente->id))->assertOk();
+        $this->get(route('clientes.documento', $garante->id))->assertOk();
+    }
+    public function test_usuario_no_autorizado_no_puede_ver_documento(): void
+    {
+        $cliente = $this->registrarCliente();
+        $cliente->update(['documento_archivo' => 'documentos_clientes/ejemplo.jpg']);
+
+        // La ruta auth debe enviar al login si no hay sesión.
+        \Illuminate\Support\Facades\Auth::logout();
+        $this->get(route('clientes.documento', $cliente->id))
+            ->assertRedirect(route('login'));
+
+        // Una cuenta sin permiso no debe ver el documento, aunque conozca la URL.
+        $usuario = User::create([
+            'name' => 'Usuario sin permiso',
+            'email' => 'sin-permiso@example.com',
+            'password' => Hash::make('ClaveDePruebaSoloParaTests'),
+        ]);
+        $this->actingAs($usuario);
+        $this->get(route('clientes.documento', $cliente->id))->assertForbidden();
+    }
+
+    public function test_reemplazar_cedula_conserva_nueva_y_elimina_anterior(): void
+    {
+        Storage::fake('local');
+        $cliente = $this->registrarCliente();
+
+        $datos = $this->solicitudValida();
+        unset($datos['tipo_documento_id'], $datos['numero_documento'], $datos['garante']);
+        $datos['estado'] = 'Activo';
+
+        $contenido = $this->contenidoJpegFicticio();
+        $datos['documento_archivo'] = UploadedFile::fake()
+            ->createWithContent('cedula-anterior.jpg', $contenido);
+        $this->put(route('clientes.update', $cliente->id), $datos)
+            ->assertRedirect(route('clientes.index'));
+
+        $rutaAnterior = $cliente->fresh()->documento_archivo;
+        $this->assertNotNull($rutaAnterior);
+        Storage::disk('local')->assertExists($rutaAnterior);
+
+        $datos['documento_archivo'] = UploadedFile::fake()
+            ->createWithContent('cedula-nueva.jpg', $contenido);
+        $this->put(route('clientes.update', $cliente->id), $datos)
+            ->assertRedirect(route('clientes.index'));
+
+        $rutaNueva = $cliente->fresh()->documento_archivo;
+        $this->assertNotNull($rutaNueva);
+        $this->assertNotSame($rutaAnterior, $rutaNueva);
+        Storage::disk('local')->assertExists($rutaNueva);
+        Storage::disk('local')->assertMissing($rutaAnterior);
+        $this->assertSame(2, Cliente::count());
+    }
+
 }

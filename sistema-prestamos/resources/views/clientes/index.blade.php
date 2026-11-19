@@ -372,10 +372,49 @@
                     {{ $cliente->nombres }} {{ $cliente->apellidos }}
                 </p>
 
-                <p><strong>Documento:</strong>
-                    {{ $cliente->tipoDocumento?->nombre }}
-                    - {{ $cliente->numero_documento }}
-                </p>
+                
+                    <p><strong>Documento:</strong>
+                        {{ $cliente->tipoDocumento?->nombre }}
+                        - {{ $cliente->numero_documento }}
+                    </p>
+
+                   
+                        @can('ver-documentos-clientes')
+                            @if ($cliente->documento_archivo)
+                                <div class="mb-4">
+                                    <button type="button"
+                                            class="btn btn-outline-dark btn-sm rounded-3"
+                                            data-bs-toggle="collapse"
+                                            data-bs-target="#documentoCliente{{ $cliente->id }}"
+                                            aria-expanded="false"
+                                            aria-controls="documentoCliente{{ $cliente->id }}">
+                                        <i class="bi bi-card-image me-1"></i>
+                                        Ver documento de identidad
+                                    </button>
+
+                                    <div class="collapse mt-3"
+                                        id="documentoCliente{{ $cliente->id }}">
+                                        <div class="p-3 rounded-4 text-center"
+                                            style="background-color: #f8f6f2; border: 1px solid #e9ddcd;">
+
+                                            <img
+                                                src="{{ route('clientes.documento', $cliente->id) }}"
+                                                alt="Documento de identidad del cliente"
+                                                class="img-fluid rounded-3"
+                                                style="max-height: 350px; object-fit: contain;"
+                                                loading="lazy"
+                                                referrerpolicy="no-referrer">
+                                        </div>
+                                    </div>
+                                </div>
+                            @else
+                                <p class="text-secondary small">
+                                    No tiene un documento de identidad cargado.
+                                </p>
+                            @endif
+                        @endcan
+
+
 
                 <p><strong>Nacionalidad:</strong>
                     {{ $cliente->nacionalidad?->nombre }}
@@ -482,9 +521,45 @@
                     <p><strong>Nombre:</strong>
                         {{ $garante->nombres }} {{ $garante->apellidos }}
                     </p>
+                    
                     <p><strong>Documento:</strong>
                         {{ $garante->numero_documento }}
                     </p>
+
+                    @can('ver-documentos-clientes')
+                        @if ($garante->documento_archivo)
+                            <div class="mb-4">
+                                <button type="button"
+                                        class="btn btn-outline-dark btn-sm rounded-3"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#documentoGarante{{ $cliente->id }}"
+                                        aria-expanded="false"
+                                        aria-controls="documentoGarante{{ $cliente->id }}">
+                                    <i class="bi bi-card-image me-1"></i>
+                                    Ver documento del garante
+                                </button>
+
+                                <div class="collapse mt-3"
+                                    id="documentoGarante{{ $cliente->id }}">
+                                    <div class="p-3 rounded-4 text-center"
+                                        style="background-color: #f8f6f2; border: 1px solid #e9ddcd;">
+
+                                        <img
+                                            src="{{ route('clientes.documento', $garante->id) }}"
+                                            alt="Documento de identidad del garante"
+                                            class="img-fluid rounded-3"
+                                            style="max-height: 350px; object-fit: contain;"
+                                            loading="lazy">
+                                    </div>
+                                </div>
+                            </div>
+                        @else
+                            <p class="text-secondary small">
+                                El garante no tiene un documento cargado.
+                            </p>
+                        @endif
+                    @endcan
+
                     <p><strong>Correo:</strong>
                         {{ $garante->correo }}
                     </p>

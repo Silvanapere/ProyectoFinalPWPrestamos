@@ -21,6 +21,7 @@ class Cliente extends Model
         'referencia_direccion',
         'limite_credito',
         'clasificacion_crediticia',
+        'documento_archivo',
         'estado'
     ];
 

@@ -9,6 +9,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Gate;
 
 class ClienteController extends Controller
 {
@@ -127,6 +129,9 @@ class ClienteController extends Controller
             'garante' => 'required|array',
             'garante.tipo_documento_id' => 'required|integer|exists:tipos_documento,id',
             'garante.numero_documento' => 'required|string|max:30',
+            'documento_archivo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+            'documento_garante' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+
         ]);
 
         $numeroCliente = $this->normalizarDocumento($datos['numero_documento']);
@@ -150,7 +155,16 @@ class ClienteController extends Controller
             }
         }
 
-        return DB::transaction(function () use ($request, $datos, $numeroCliente, $numeroGarante) {
+        $rutasNuevas = [];
+
+        try {
+            return DB::transaction(function () use (
+                $request,
+                $datos,
+                $numeroCliente,
+                $numeroGarante,
+                &$rutasNuevas
+            ) {            
             $cliente = Cliente::where('numero_documento', $numeroCliente)->lockForUpdate()->first();
 
             if ($cliente && $cliente->relacionGarante()->exists()) {
@@ -246,6 +260,14 @@ class ClienteController extends Controller
                 ]);
                 $garante->telefonos()->createMany($nuevosDatos['telefonos']);
                 $garante->datosLaborales()->create($nuevosDatos['laboral']);
+                if ($request->hasFile('documento_garante')) {
+                $rutaDocumentoGarante = $request->file('documento_garante')
+                    ->store('documentos_clientes', 'local');
+
+                $garante->update([
+                    'documento_archivo' => $rutaDocumentoGarante,
+                ]);
+            }
             }
 
             $cliente->relacionGarante()->create([
@@ -253,10 +275,28 @@ class ClienteController extends Controller
                 'fecha_asignacion' => now()->toDateString(),
             ]);
 
-            return redirect()->route('clientes.index')
+            if ($request->hasFile('documento_archivo')) {
+            $rutaDocumento = $request->file('documento_archivo')
+                ->store('documentos_clientes', 'local');
+
+            $cliente->update([
+                'documento_archivo' => $rutaDocumento,
+            ]);
+        }
+
+                       return redirect()->route('clientes.index')
                 ->with('success', 'Cliente y garante registrados correctamente.');
+
         });
+
+    } catch (\Throwable $e) {
+        foreach ($rutasNuevas as $ruta) {
+            Storage::disk('local')->delete($ruta);
+        }
+
+        throw $e;
     }
+}
 
 
 public function update(Request $request, Cliente $cliente)
@@ -303,6 +343,9 @@ public function update(Request $request, Cliente $cliente)
         'familiares.*.parentesco' => 'required|string|max:50',
         'familiares.*.telefono' => 'required|string|max:20',
         'familiares.*.direccion' => 'required|string|max:255',
+
+        'documento_archivo' => 'nullable|file|mimes:jpg,jpeg,png|max:5120',
+    
     ]);
 
     $principales = collect($datos['telefonos'])
@@ -357,6 +400,26 @@ public function update(Request $request, Cliente $cliente)
         }
     });
 
+    if ($request->hasFile('documento_archivo')) {
+    $rutaAnterior = $cliente->documento_archivo;
+
+    $rutaNueva = $request->file('documento_archivo')
+        ->store('documentos_clientes', 'local');
+
+    try {
+        $cliente->update([
+            'documento_archivo' => $rutaNueva,
+        ]);
+    } catch (\Throwable $e) {
+        Storage::disk('local')->delete($rutaNueva);
+        throw $e;
+    }
+
+    if ($rutaAnterior) {
+        Storage::disk('local')->delete($rutaAnterior);
+    }
+}
+
     return redirect()->route('clientes.index')
         ->with('success', 'Cliente actualizado correctamente.');
 }
@@ -408,4 +471,34 @@ public function update(Request $request, Cliente $cliente)
     return redirect()->route('clientes.index')
         ->with('success', 'Estado del cliente actualizado correctamente.');
 }
+
+
+
+public function verDocumento(Cliente $cliente)
+{
+    Gate::authorize('ver-documentos-clientes');
+
+    if (!$cliente->documento_archivo) {
+        abort(404, 'Este cliente no tiene un documento registrado.');
+    }
+
+    $disco = Storage::disk('local');
+    $ruta = $cliente->documento_archivo;
+
+    if (!$disco->exists($ruta)) {
+        abort(404, 'No se encontró el documento.');
+    }
+
+    return response()->file($disco->path($ruta), [
+    'Content-Type' => $disco->mimeType($ruta),
+    'Content-Disposition' => 'inline',
+    'Cache-Control' => 'private, no-store, no-cache, must-revalidate',
+    'Pragma' => 'no-cache',
+    'Expires' => '0',
+    'X-Content-Type-Options' => 'nosniff',
+]);
+}
+
+
+
 }

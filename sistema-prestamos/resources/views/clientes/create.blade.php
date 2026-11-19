@@ -55,7 +55,10 @@
             </div>
         @endif
 
-        <form action="{{ route('clientes.store') }}" method="POST" id="formCliente">
+        <form action="{{ route('clientes.store') }}"
+            method="POST"
+            id="formCliente"
+            enctype="multipart/form-data">
             @csrf
             <section class="tarjeta">
                 <h5 class="titulo-seccion"><i class="bi bi-person"></i>Datos personales</h5>
@@ -100,6 +103,28 @@
                     </div>
                 </div>
             </section>
+            <section class="tarjeta">
+                <h5 class="titulo-seccion">
+                    <i class="bi bi-card-image"></i>
+                    Documento de identidad
+                </h5>
+
+                <div class="mb-3">
+                    <label for="documento_archivo" class="form-label">
+                        Imagen de la cédula o documento
+                    </label>
+
+                    <input type="file"
+                        id="documento_archivo"
+                        name="documento_archivo"
+                        class="form-control"
+                        accept=".jpg,.jpeg,.png">
+
+                    <small class="text-secondary">
+                        Formatos permitidos: JPG y PNG. Máximo 5 MB.
+                    </small>
+                </div>
+            </section>
 
                         <section class="tarjeta">
                 <h5 class="titulo-seccion"><i class="bi bi-people"></i>Datos del garante</h5>
@@ -130,6 +155,31 @@
                         <div class="col-md-6"><label class="form-label">Dirección *</label><input name="garante[direccion]" class="form-control garante-detalle" maxlength="255" value="{{ old('garante.direccion') }}" required></div>
                         <div class="col-12"><label class="form-label">Referencia de dirección *</label><textarea name="garante[referencia_direccion]" class="form-control garante-detalle" maxlength="255" rows="2" required>{{ old('garante.referencia_direccion') }}</textarea></div>
                     </div>
+
+                    <div class="mt-4 mb-3">
+                        <label for="documento_garante" class="form-label">
+                            Cédula o documento de identidad del garante
+                        </label>
+
+                        <input
+                            type="file"
+                            id="documento_garante"
+                            name="documento_garante"
+                            class="form-control garante-detalle"
+                            accept=".jpg,.jpeg,.png"
+                        >
+
+                        <small class="text-secondary">
+                            Formatos permitidos: JPG y PNG. Máximo 5 MB.
+                        </small>
+
+                        @error('documento_garante')
+                            <div class="text-danger small mt-1">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
                     <h6 class="subtitulo">Teléfono del garante *</h6>
                     <div class="row g-3">
                         <div class="col-md-4"><label class="form-label">Tipo</label><select name="garante[telefonos][0][tipo]" class="form-select garante-detalle" required>@foreach(['Celular','Casa','Trabajo'] as $tipo)<option value="{{ $tipo }}" {{ old('garante.telefonos.0.tipo','Celular') === $tipo ? 'selected' : '' }}>{{ $tipo }}</option>@endforeach</select></div>

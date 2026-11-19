@@ -165,7 +165,7 @@
                 </div>
             @endif
 
-            <form action="{{ route('clientes.update', $cliente->id) }}" method="POST" id="formEditarCliente">
+            <form action="{{ route('clientes.update', $cliente->id) }}" method="POST" id="formEditarCliente" enctype="multipart/form-data">
                 @csrf
                 @method('PUT')
 
@@ -286,6 +286,30 @@
                         + Agregar teléfono
                     </button>
                     <p class="text-secondary small mt-2 mb-0">Marca exactamente un teléfono como principal.</p>
+                </section>
+
+                <section class="tarjeta">
+                    <h5 class="titulo-seccion">
+                        <i class="bi bi-card-image"></i>
+                        Documento de identidad
+                    </h5>
+
+                    <label for="documento_archivo" class="form-label">
+                        Subir o reemplazar documento
+                    </label>
+
+                    <input
+                        type="file"
+                        id="documento_archivo"
+                        name="documento_archivo"
+                        class="form-control"
+                        accept=".jpg,.jpeg,.png"
+                    >
+
+                    <small class="text-secondary">
+                        JPG o PNG. Máximo 5 MB.
+                        Deja este campo vacío para conservar el documento actual.
+                    </small>
                 </section>
 
                 <section class="tarjeta">

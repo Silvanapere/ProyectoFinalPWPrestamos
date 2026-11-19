@@ -1,39 +1,64 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\TipoPrestamoController;
 use App\Http\Controllers\ClienteController;
 
-Route::get('/', function () {
-    return view('inicio');
+// Rutas de inicio de sesión
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [LoginController::class, 'mostrarLogin'])
+        ->name('login');
+
+    Route::post('/login', [LoginController::class, 'iniciarSesion'])
+        ->middleware('throttle:5,1')
+        ->name('login.attempt');
+
+    
 });
 
-Route::get('/clientes', [ClienteController::class, 'index'])
-    ->name('clientes.index');
+// Rutas protegidas
+Route::middleware('auth')->group(function () {
 
-Route::get('/clientes/crear', [ClienteController::class, 'create'])
-    ->name('clientes.create');
+    Route::post('/logout', [LoginController::class, 'cerrarSesion'])
+        ->name('logout');
 
-Route::get('/clientes/buscar-documento', [ClienteController::class, 'buscarDocumento'])
-    ->name('clientes.buscar-documento');
+    Route::get('/', function () {
+        return view('inicio');
+    })->name('dashboard');
 
-Route::post('/clientes', [ClienteController::class, 'store'])
-    ->name('clientes.store');
+    // Clientes
+    Route::get('/clientes', [ClienteController::class, 'index'])
+        ->name('clientes.index');
 
-Route::get('/clientes/{cliente}/editar', [ClienteController::class, 'edit'])
-    ->name('clientes.edit');
+    Route::get('/clientes/crear', [ClienteController::class, 'create'])
+        ->name('clientes.create');
 
-Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])
-    ->name('clientes.update');
-    
-Route::patch('/clientes/{cliente}/estado', [ClienteController::class, 'cambiarEstado'])
-    ->name('clientes.estado');
+    Route::get('/clientes/buscar-documento', [ClienteController::class, 'buscarDocumento'])
+        ->name('clientes.buscar-documento');
 
-Route::get('/tipos-prestamo', [TipoPrestamoController::class, 'index'])
-    ->name('tipos-prestamo.index');
+    Route::post('/clientes', [ClienteController::class, 'store'])
+        ->name('clientes.store');
 
-Route::post('/tipos-prestamo', [TipoPrestamoController::class, 'store'])
-    ->name('tipos-prestamo.store');
+    Route::get('/clientes/{cliente}/editar', [ClienteController::class, 'edit'])
+        ->name('clientes.edit');
 
-Route::put('/tipos-prestamo/{id}', [TipoPrestamoController::class, 'update'])
-    ->name('tipos-prestamo.update');
+    Route::put('/clientes/{cliente}', [ClienteController::class, 'update'])
+        ->name('clientes.update');
+
+    Route::patch('/clientes/{cliente}/estado', [ClienteController::class, 'cambiarEstado'])
+        ->name('clientes.estado');
+
+   Route::get('/clientes/{cliente}/documento', [ClienteController::class, 'verDocumento'])
+    ->name('clientes.documento'); 
+
+    // Tipos de préstamo
+    Route::get('/tipos-prestamo', [TipoPrestamoController::class, 'index'])
+        ->name('tipos-prestamo.index');
+
+    Route::post('/tipos-prestamo', [TipoPrestamoController::class, 'store'])
+        ->name('tipos-prestamo.store');
+
+    Route::put('/tipos-prestamo/{id}', [TipoPrestamoController::class, 'update'])
+        ->name('tipos-prestamo.update');
+});

@@ -271,6 +271,17 @@
             <i class="bi bi-search"></i>
         </a>
 
+        <form action="{{ route('logout') }}" method="POST" style="margin-top: auto;">
+    @csrf
+
+    <button type="submit"
+            title="Cerrar sesión"
+            style="background: transparent; border: none; color: #c9c3bd;
+                   font-size: 22px; width: 48px; height: 48px; cursor: pointer;">
+        <i class="bi bi-box-arrow-right"></i>
+    </button>
+</form>
+
     </aside>
 
     <!-- CONTENIDO PRINCIPAL -->
